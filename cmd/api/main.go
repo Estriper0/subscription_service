@@ -8,6 +8,10 @@ import (
 
 const configPath = "configs/config.yaml"
 
+// @title           Сервис онлайн-подписок
+// @version         1.0
+// @description     Это API для агрегации данных об онлайн-подписках пользователей.
+// @host      localhost:8080
 func main() {
 	config := config.New(configPath)
 	logger := logger.GetLogger(config.App.Env)

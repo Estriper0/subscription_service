@@ -35,13 +35,21 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 	}
 
 	g.POST("/", r.Add)
-	g.GET("/", r.GetById)
-	g.DELETE("/", r.DeleteById)
+	g.GET("/:id", r.GetById)
+	g.DELETE("/:id", r.DeleteById)
 	g.PATCH("/", r.Update)
 	g.POST("/price", r.GetPriceByFilter)
-	g.GET("/user", r.GetByUser)
+	g.GET("/user/:userId", r.GetByUser)
 }
 
+// Add godoc
+// @Summary Создать новую подписку
+// @Description Создаёт новую подписку для пользователя
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param request body dto.SubscriptionCreateRequest true "Данные для создания подписки"
+// @Router /subscription [post]
 func (h *SubscriptionHandler) Add(c *gin.Context) {
 	var req dto.SubscriptionCreateRequest
 
@@ -81,13 +89,16 @@ func (h *SubscriptionHandler) Add(c *gin.Context) {
 	)
 }
 
+// GetByUser godoc
+// @Summary Получить подписки пользователя
+// @Description Возвращает список всех подписок пользователя по его ID
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param userId path string true "UUID пользователя" format(uuid)
+// @Router /subscription/user/{userId} [get]
 func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
-	userId, ok := c.GetQuery("user_id")
-	if !ok {
-		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("invalid query params"))
-		return
-	}
-
+	userId := c.Param("userId")
 	parseUUID, err := uuid.Parse(userId)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("incorrect uuid"))
@@ -121,13 +132,16 @@ func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
 	)
 }
 
+// GetById godoc
+// @Summary Получить подписку по ID
+// @Description Возвращает информацию о конкретной подписке по её ID
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param id path integer true "ID подписки" minimum(0)
+// @Router /subscription/{id} [get]
 func (h *SubscriptionHandler) GetById(c *gin.Context) {
-	id, ok := c.GetQuery("id")
-	if !ok {
-		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("invalid query params"))
-		return
-	}
-
+	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil || idInt < 0 {
 		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("id must be a non-negative integer"))
@@ -161,13 +175,16 @@ func (h *SubscriptionHandler) GetById(c *gin.Context) {
 	)
 }
 
+// DeleteById godoc
+// @Summary Удалить подписку по ID
+// @Description Удаляет подписку по её ID и возвращает информацию об удалённой подписке
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param id path integer true "ID подписки для удаления" minimum(0)
+// @Router /subscription/{id} [delete]
 func (h *SubscriptionHandler) DeleteById(c *gin.Context) {
-	id, ok := c.GetQuery("id")
-	if !ok {
-		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("invalid query params"))
-		return
-	}
-
+	id := c.Param("id")
 	idInt, err := strconv.Atoi(id)
 	if err != nil || idInt < 0 {
 		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("id must be a non-negative integer"))
@@ -201,6 +218,14 @@ func (h *SubscriptionHandler) DeleteById(c *gin.Context) {
 	)
 }
 
+// Update godoc
+// @Summary Обновить подписку
+// @Description Обновляет информацию о существующей подписке
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param request body dto.SubscriptionUpdateRequest true "Данные для обновления подписки"
+// @Router /subscription [patch]
 func (h *SubscriptionHandler) Update(c *gin.Context) {
 	var req dto.SubscriptionUpdateRequest
 
@@ -225,6 +250,9 @@ func (h *SubscriptionHandler) Update(c *gin.Context) {
 		if errors.Is(err, service.ErrNotFound) {
 			respondWithError(c, http.StatusNotFound, ErrStatusNotFound, err)
 			return
+		} else if errors.Is(err, service.ErrIncorrectTime) {
+			respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, err)
+			return
 		}
 		respondWithError(c, http.StatusInternalServerError, ErrStatusInternal, err)
 		return
@@ -240,13 +268,23 @@ func (h *SubscriptionHandler) Update(c *gin.Context) {
 	}
 
 	c.JSON(
-		http.StatusCreated,
+		http.StatusOK,
 		gin.H{
 			"subscription": res,
 		},
 	)
 }
 
+// GetPriceByFilter godoc
+// @Summary Получить сумму подписок по фильтрам
+// @Description Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь, сервис, период)
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param request body dto.SubscriptionFilterRequest true "Период для фильтрации"
+// @Param user_id query string false "UUID пользователя для фильтрации" format(uuid)
+// @Param service_name query string false "Название сервиса для фильтрации"
+// @Router /subscription/price [post]
 func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
 	var req dto.SubscriptionFilterRequest
 

@@ -8,6 +8,7 @@ import (
 	"regexp"
 	"syscall"
 
+	_ "github.com/Estriper0/subscription_service/docs"
 	"github.com/Estriper0/subscription_service/internal/config"
 	"github.com/Estriper0/subscription_service/internal/handlers"
 	"github.com/Estriper0/subscription_service/internal/repository/db"
@@ -17,6 +18,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type App struct {
@@ -33,6 +36,8 @@ func New(logger *slog.Logger, config *config.Config) *App {
 	}
 
 	router := gin.New()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	dbPool, err := postgres.New(config.DB.Url(), config.DB.PoolSize)
 	if err != nil {
 		panic(err)
