@@ -166,6 +166,8 @@ func (s *SubscriptionService) Update(ctx context.Context, data *domain.Subscript
 	if err != nil {
 		if errors.Is(err, repository.ErrNotFound) {
 			return nil, ErrNotFound
+		} else if errors.Is(err, repository.ErrIncorrectTime) {
+			return nil, ErrIncorrectTime
 		}
 		s.logger.Error("SubscriptionService.Update:subscriptionRepo.Update - Internal error", slog.String("error", err.Error()))
 		return nil, ErrInternal

@@ -10,6 +10,7 @@ import (
 	"github.com/Estriper0/subscription_service/internal/repository/models"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -148,7 +149,13 @@ func (r *SubscriptionRepo) Update(ctx context.Context, s *models.SubscriptionUpd
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, repository.ErrNotFound
 		}
-		return nil, fmt.Errorf("db:SubscriptionRepo.UpdateById:QueryRow - %s", err.Error())
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if pgErr.Code == repository.PgCodeConstrainError {
+				return nil, repository.ErrIncorrectTime
+			}
+		}
+		return nil, fmt.Errorf("db:SubscriptionRepo.Update:QueryRow - %s", err.Error())
 	}
 
 	return &subscription, nil

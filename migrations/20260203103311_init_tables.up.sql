@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS subscription (
     user_id UUID NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE
+    CONSTRAINT end_date_after_start_date 
+        CHECK (end_date IS NULL OR end_date > start_date)
 );
 
 CREATE INDEX IF NOT EXISTS idx_subscription_users_id ON subscription(user_id);
