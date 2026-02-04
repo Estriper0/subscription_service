@@ -29,5 +29,5 @@
 
 ---
 
-По пути <localhost:8080/swagger/index.html> можно ознакомиться с документацией
+По пути <https://localhost:8080/swagger/index.html> можно ознакомиться с документацией
 
