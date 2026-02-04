@@ -22,9 +22,10 @@
     DB_NAME=postgres
    ```
 
-3. **Запусти с помощью Make**:
+3. **Запусти с помощью Make или Docker Compose**:
    ```
    make up
+   docker compose up --build -d
    ```
 
 ---
