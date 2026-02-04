@@ -21,11 +21,11 @@ type SubscriptionHandler struct {
 
 type ISubscriptionService interface {
 	Create(ctx context.Context, subscription *domain.SubscriptionCreate) (int, error)
-	GetByUser(ctx context.Context, user_id uuid.UUID) ([]*domain.Subscription, error)
+	GetByUser(ctx context.Context, userId uuid.UUID) ([]*domain.Subscription, error)
 	GetById(ctx context.Context, id int) (*domain.Subscription, error)
 	DeleteById(ctx context.Context, id int) (*domain.Subscription, error)
 	Update(ctx context.Context, data *domain.SubscriptionUpdate) (*domain.Subscription, error)
-	GetPriceByFilter(ctx context.Context, user_id *uuid.UUID, service_name *string, startDate, endDate string) (int, error)
+	GetPriceByFilter(ctx context.Context, userId *uuid.UUID, serviceName *string, startDate, endDate string) (int, error)
 }
 
 func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptionService, validate *validator.Validate) {

@@ -61,8 +61,8 @@ func (s *SubscriptionService) Create(ctx context.Context, subscription *domain.S
 	return id, err
 }
 
-func (s *SubscriptionService) GetByUser(ctx context.Context, user_id uuid.UUID) ([]*domain.Subscription, error) {
-	models, err := s.subscriptionRepo.GetByUser(ctx, user_id)
+func (s *SubscriptionService) GetByUser(ctx context.Context, userId uuid.UUID) ([]*domain.Subscription, error) {
+	models, err := s.subscriptionRepo.GetByUser(ctx, userId)
 	if err != nil {
 		s.logger.Error("SubscriptionService.GetByUser:subscriptionRepo.GetByUser - Internal error", slog.String("error", err.Error()))
 		return nil, ErrInternal
@@ -84,7 +84,7 @@ func (s *SubscriptionService) GetByUser(ctx context.Context, user_id uuid.UUID) 
 		}
 		subscriptions = append(subscriptions, subscription)
 	}
-	s.logger.Info("All user subscriptions were received successfully")
+	s.logger.Info(fmt.Sprintf("All user userId=%s subscriptions were received successfully", userId.String()))
 
 	return subscriptions, err
 }
@@ -191,14 +191,14 @@ func (s *SubscriptionService) Update(ctx context.Context, data *domain.Subscript
 	return subscription, err
 }
 
-func (s *SubscriptionService) GetPriceByFilter(ctx context.Context, user_id *uuid.UUID, service_name *string, startDate, endDate string) (int, error) {
+func (s *SubscriptionService) GetPriceByFilter(ctx context.Context, userId *uuid.UUID, serviceName *string, startDate, endDate string) (int, error) {
 	parsedStart, _ := time.Parse("01-2006", startDate)
 	parsedEnd, _ := time.Parse("01-2006", endDate)
 	if parsedEnd.Before(parsedStart) {
 		return 0, ErrIncorrectTime
 	}
 
-	total, err := s.subscriptionRepo.GetPriceByFilter(ctx, user_id, service_name, parsedStart, parsedEnd)
+	total, err := s.subscriptionRepo.GetPriceByFilter(ctx, userId, serviceName, parsedStart, parsedEnd)
 	if err != nil {
 		s.logger.Error("SubscriptionService.GetPriceByFilter:subscriptionRepo.GetPriceByFilter - Internal error", slog.String("error", err.Error()))
 		return 0, ErrInternal

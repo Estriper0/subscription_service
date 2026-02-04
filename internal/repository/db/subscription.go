@@ -71,7 +71,6 @@ func (r *SubscriptionRepo) GetByUser(ctx context.Context, userId uuid.UUID) ([]*
 	`
 	rows, err := r.db.Query(ctx, query, userId)
 	if err != nil {
-
 		return nil, fmt.Errorf("db:SubscriptionRepo.GetByUser:Query - %s", err.Error())
 	}
 
