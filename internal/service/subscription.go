@@ -203,7 +203,6 @@ func (s *SubscriptionService) GetPriceByFilter(ctx context.Context, userId *uuid
 		s.logger.Error("SubscriptionService.GetPriceByFilter:subscriptionRepo.GetPriceByFilter - Internal error", slog.String("error", err.Error()))
 		return 0, ErrInternal
 	}
-	total *= int(parsedEnd.Month()) - int(parsedStart.Month()) + 1
 	s.logger.Info(fmt.Sprintf("Total cost for the period from %s to %s is %d", startDate, endDate, total))
 
 	return total, err
