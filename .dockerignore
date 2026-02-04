@@ -80,7 +80,6 @@ examples/
 demo/
 
 # Игнорировать документацию (если не нужна в образе)
-/docs
 README.md
 LICENSE
 
