@@ -1,0 +1,186 @@
+definitions:
+  dto.SubscriptionCreateRequest:
+    properties:
+      service_name:
+        example: Netflix
+        maxLength: 100
+        type: string
+      price:
+        example: 599
+        minimum: 0
+        type: integer
+      user_id:
+        example: 550e8400-e29b-41d4-a716-446655440000
+        type: string
+      start_date:
+        example: 01-2026
+        type: string
+      end_date:
+        example: 05-2026
+        type: string
+    required:
+    - price
+    - service_name
+    - start_date
+    - user_id
+    type: object
+  dto.SubscriptionFilterRequest:
+    properties:
+      start_date:
+        example: 01-2026
+        type: string
+      end_date:
+        example: 05-2026
+        type: string
+    required:
+    - end_date
+    - start_date
+    type: object
+  dto.SubscriptionUpdateRequest:
+    properties:
+      id:
+        example: 1
+        minimum: 0
+        type: integer
+      service_name:
+        example: Netflix Premium
+        maxLength: 100
+        type: string
+      price:
+        example: 699
+        minimum: 0
+        type: integer
+      start_date:
+        example: 01-2026
+        type: string
+      end_date:
+        example: 05-2026
+        type: string
+    required:
+    - id
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Это API для агрегации данных об онлайн-подписках пользователей.
+  title: Сервис онлайн-подписок
+  version: "1.0"
+paths:
+  /subscription:
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет информацию о существующей подписке
+      parameters:
+      - description: Данные для обновления подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SubscriptionUpdateRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Обновить подписку
+      tags:
+      - subscription
+    post:
+      consumes:
+      - application/json
+      description: Создаёт новую подписку для пользователя
+      parameters:
+      - description: Данные для создания подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SubscriptionCreateRequest'
+      produces:
+      - application/json
+      responses: {}
+      summary: Создать новую подписку
+      tags:
+      - subscription
+  /subscription/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет подписку по её ID и возвращает информацию об удалённой
+        подписке
+      parameters:
+      - description: ID подписки для удаления
+        in: path
+        minimum: 0
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Удалить подписку по ID
+      tags:
+      - subscription
+    get:
+      consumes:
+      - application/json
+      description: Возвращает информацию о конкретной подписке по её ID
+      parameters:
+      - description: ID подписки
+        in: path
+        minimum: 0
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Получить подписку по ID
+      tags:
+      - subscription
+  /subscription/price:
+    post:
+      consumes:
+      - application/json
+      description: Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь,
+        сервис, период)
+      parameters:
+      - description: Период для фильтрации
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SubscriptionFilterRequest'
+      - description: UUID пользователя для фильтрации
+        format: uuid
+        in: query
+        name: user_id
+        type: string
+      - description: Название сервиса для фильтрации
+        in: query
+        name: service_name
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Получить сумму подписок по фильтрам
+      tags:
+      - subscription
+  /subscription/user/{userId}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех подписок пользователя по его ID
+      parameters:
+      - description: UUID пользователя
+        format: uuid
+        in: path
+        name: userId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Получить подписки пользователя
+      tags:
+      - subscription
+swagger: "2.0"

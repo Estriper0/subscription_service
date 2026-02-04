@@ -1,0 +1,263 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Это API для агрегации данных об онлайн-подписках пользователей.",
+        "title": "Сервис онлайн-подписок",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "paths": {
+        "/subscription": {
+            "post": {
+                "description": "Создаёт новую подписку для пользователя",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Создать новую подписку",
+                "parameters": [
+                    {
+                        "description": "Данные для создания подписки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SubscriptionCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "patch": {
+                "description": "Обновляет информацию о существующей подписке",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Обновить подписку",
+                "parameters": [
+                    {
+                        "description": "Данные для обновления подписки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SubscriptionUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/subscription/price": {
+            "post": {
+                "description": "Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь, сервис, период)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Получить сумму подписок по фильтрам",
+                "parameters": [
+                    {
+                        "description": "Период для фильтрации",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SubscriptionFilterRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "UUID пользователя для фильтрации",
+                        "name": "user_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Название сервиса для фильтрации",
+                        "name": "service_name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/subscription/user/{userId}": {
+            "get": {
+                "description": "Возвращает список всех подписок пользователя по его ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Получить подписки пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "format": "uuid",
+                        "description": "UUID пользователя",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/subscription/{id}": {
+            "get": {
+                "description": "Возвращает информацию о конкретной подписке по её ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Получить подписку по ID",
+                "parameters": [
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "ID подписки",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "description": "Удаляет подписку по её ID и возвращает информацию об удалённой подписке",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Удалить подписку по ID",
+                "parameters": [
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "ID подписки для удаления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "definitions": {
+        "dto.SubscriptionCreateRequest": {
+            "type": "object",
+            "required": [
+                "price",
+                "service_name",
+                "start_date",
+                "user_id"
+            ],
+            "properties": {
+                "service_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "Netflix"
+                },
+                "price": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 599
+                },
+                "user_id": {
+                    "type": "string",
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "01-2026"
+                },
+                "end_date": {
+                    "type": "string",
+                    "example": "05-2026"
+                }
+            }
+        },
+        "dto.SubscriptionFilterRequest": {
+            "type": "object",
+            "required": [
+                "end_date",
+                "start_date"
+            ],
+            "properties": {
+                "start_date": {
+                    "type": "string",
+                    "example": "01-2026"
+                },
+                "end_date": {
+                    "type": "string",
+                    "example": "05-2026"
+                }
+            }
+        },
+        "dto.SubscriptionUpdateRequest": {
+            "type": "object",
+            "required": [
+                "id"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 1
+                },
+                "service_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "Netflix Premium"
+                },
+                "price": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "example": 699
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "01-2026"
+                },
+                "end_date": {
+                    "type": "string",
+                    "example": "05-2026"
+                }
+            }
+        }
+    }
+}
