@@ -42,6 +42,40 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/subscription/": {
+            "get": {
+                "description": "Возвращает список всех подписок",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Получить все подписки",
+                "parameters": [
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "Количество записей на странице",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/subscription/price": {
             "get": {
                 "description": "Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь, сервис, период)",

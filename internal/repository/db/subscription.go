@@ -194,3 +194,36 @@ func (r *SubscriptionRepo) GetPriceByFilter(ctx context.Context, user_id *uuid.U
 
 	return total, nil
 }
+
+func (r *SubscriptionRepo) GetAll(ctx context.Context, offset, limit int) ([]*models.Subscription, error) {
+	query := `
+		SELECT * 
+			FROM subscription
+		OFFSET $1
+		LIMIT $2
+	`
+
+	rows, err := r.db.Query(ctx, query, offset, limit)
+	if err != nil {
+		return nil, fmt.Errorf("db:SubscriptionRepo.GetAll:Query - %s", err.Error())
+	}
+
+	var subscriptions []*models.Subscription
+	for rows.Next() {
+		var subscription models.Subscription
+		err := rows.Scan(
+			&subscription.Id,
+			&subscription.ServiceName,
+			&subscription.Price,
+			&subscription.UserId,
+			&subscription.StartDate,
+			&subscription.EndDate,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("db:SubscriptionRepo.GetAll:Scan - %s", err.Error())
+		}
+		subscriptions = append(subscriptions, &subscription)
+	}
+
+	return subscriptions, nil
+}

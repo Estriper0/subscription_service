@@ -21,6 +21,7 @@ type ISubscriptionRepo interface {
 	DeleteById(ctx context.Context, id int) (*models.Subscription, error)
 	Update(ctx context.Context, s *models.SubscriptionUpdate) (*models.Subscription, error)
 	GetPriceByFilter(ctx context.Context, user_id *uuid.UUID, service_name *string, start_date, end_date time.Time) (int, error)
+	GetAll(ctx context.Context, offset, limit int) ([]*models.Subscription, error)
 }
 
 type SubscriptionService struct {
@@ -206,4 +207,32 @@ func (s *SubscriptionService) GetPriceByFilter(ctx context.Context, userId *uuid
 	s.logger.Info(fmt.Sprintf("Total cost for the period from %s to %s is %d", startDate, endDate, total))
 
 	return total, err
+}
+
+func (s *SubscriptionService) GetAll(ctx context.Context, offset, limit int) ([]*domain.Subscription, error) {
+	subs, err := s.subscriptionRepo.GetAll(ctx, offset, limit)
+	if err != nil {
+		s.logger.Error("SubscriptionService.GetAll:subscriptionRepo.GetAll - Internal error", slog.String("error", err.Error()))
+		return nil, ErrInternal
+	}
+
+	var subscriptions []*domain.Subscription
+	for _, s := range subs {
+		subscription := &domain.Subscription{
+			Id:          s.Id,
+			ServiceName: s.ServiceName,
+			Price:       s.Price,
+			UserId:      s.UserId,
+			StartDate:   s.StartDate.Format("01-2006"),
+		}
+
+		if s.EndDate.Valid {
+			subscription.EndDate = new(string)
+			*subscription.EndDate = s.EndDate.Time.Format("01-2006")
+		}
+		subscriptions = append(subscriptions, subscription)
+	}
+	s.logger.Info("All subscriptions were received successfully", slog.Int("offset", offset), slog.Int("limit", limit))
+
+	return subscriptions, err
 }

@@ -26,6 +26,7 @@ type ISubscriptionService interface {
 	DeleteById(ctx context.Context, id int) (*domain.Subscription, error)
 	Update(ctx context.Context, data *domain.SubscriptionUpdate) (*domain.Subscription, error)
 	GetPriceByFilter(ctx context.Context, userId *uuid.UUID, serviceName *string, startDate, endDate string) (int, error)
+	GetAll(ctx context.Context, offset, limit int) ([]*domain.Subscription, error)
 }
 
 func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptionService, validate *validator.Validate) {
@@ -34,6 +35,7 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 		validate:            validate,
 	}
 
+	g.GET("/", r.GetAll)
 	g.POST("/", r.Add)
 	g.GET("/:id", r.GetById)
 	g.DELETE("/:id", r.DeleteById)
@@ -365,6 +367,68 @@ func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
 		http.StatusOK,
 		gin.H{
 			"price": price,
+		},
+	)
+}
+
+// GetAll godoc
+// @Summary Получить все подписки
+// @Description Возвращает список всех подписок
+// @Tags subscription
+// @Accept json
+// @Produce json
+// @Param page query integer true "Номер страницы" minimum(0)
+// @Param limit query integer true "Количество записей на странице" minimum(0)
+// @Router /subscription/ [get]
+func (h *SubscriptionHandler) GetAll(c *gin.Context) {
+	page, ok := c.GetQuery("page")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no page"))
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("page is not a integer"))
+		return
+	}
+
+	limit, ok := c.GetQuery("limit")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no limit"))
+		return
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("limit is not a integer"))
+		return
+	}
+	offset := (pageInt - 1) * limitInt
+
+	subscriptions, err := h.subscriptionService.GetAll(c.Request.Context(), offset, limitInt)
+	if err != nil {
+		respondWithError(c, http.StatusInternalServerError, ErrStatusInternal, err)
+		return
+	}
+
+	var res []dto.Subscription
+	for _, s := range subscriptions {
+		k := dto.Subscription{
+			Id:          s.Id,
+			ServiceName: s.ServiceName,
+			Price:       s.Price,
+			UserId:      s.UserId,
+			StartDate:   s.StartDate,
+			EndDate:     s.EndDate,
+		}
+		res = append(res, k)
+	}
+
+	c.JSON(
+		http.StatusOK,
+		gin.H{
+			"page":          page,
+			"limit":         limit,
+			"subscriptions": res,
 		},
 	)
 }

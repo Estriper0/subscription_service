@@ -66,6 +66,30 @@ paths:
       summary: Создать новую подписку
       tags:
       - subscription
+  /subscription/:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех подписок
+      parameters:
+      - description: Номер страницы
+        in: query
+        minimum: 0
+        name: page
+        required: true
+        type: integer
+      - description: Количество записей на странице
+        in: query
+        minimum: 0
+        name: limit
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses: {}
+      summary: Получить все подписки
+      tags:
+      - subscription
   /subscription/{id}:
     delete:
       consumes:
