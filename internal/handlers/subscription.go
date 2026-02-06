@@ -38,7 +38,7 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 	g.GET("/:id", r.GetById)
 	g.DELETE("/:id", r.DeleteById)
 	g.PATCH("/:id", r.Update)
-	g.POST("/price", r.GetPriceByFilter)
+	g.GET("/price", r.GetPriceByFilter)
 	g.GET("/user/:userId", r.GetByUser)
 }
 
@@ -288,20 +288,21 @@ func (h *SubscriptionHandler) Update(c *gin.Context) {
 // @Tags subscription
 // @Accept json
 // @Produce json
-// @Param request body dto.SubscriptionFilterRequest true "Период для фильтрации"
 // @Param user_id query string false "UUID пользователя для фильтрации" format(uuid)
 // @Param service_name query string false "Название сервиса для фильтрации"
-// @Router /subscription/price [post]
+// @Param start_date query string true "Начальная дата для подсчета суммы"
+// @Param end_date query string true "Конечная дата для подсчета суммы"
+// @Router /subscription/price [get]
 func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
-	var req dto.SubscriptionFilterRequest
-
-	if err := c.Bind(&req); err != nil {
-		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, err)
+	startDate, ok := c.GetQuery("start_date")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no start date"))
 		return
 	}
 
-	if err := h.validate.Struct(req); err != nil {
-		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, err)
+	endDate, ok := c.GetQuery("end_date")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no end date"))
 		return
 	}
 
@@ -322,7 +323,7 @@ func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
 		u = &parseUUID
 	}
 
-	price, err := h.subscriptionService.GetPriceByFilter(c.Request.Context(), u, n, req.StartDate, req.EndDate)
+	price, err := h.subscriptionService.GetPriceByFilter(c.Request.Context(), u, n, startDate, endDate)
 	if err != nil {
 		if errors.Is(err, service.ErrIncorrectTime) {
 			respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, err)

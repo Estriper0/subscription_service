@@ -43,7 +43,7 @@ const docTemplate = `{
             }
         },
         "/subscription/price": {
-            "post": {
+            "get": {
                 "description": "Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь, сервис, период)",
                 "consumes": [
                     "application/json"
@@ -57,15 +57,6 @@ const docTemplate = `{
                 "summary": "Получить сумму подписок по фильтрам",
                 "parameters": [
                     {
-                        "description": "Период для фильтрации",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SubscriptionFilterRequest"
-                        }
-                    },
-                    {
                         "type": "string",
                         "format": "uuid",
                         "description": "UUID пользователя для фильтрации",
@@ -77,6 +68,20 @@ const docTemplate = `{
                         "description": "Название сервиса для фильтрации",
                         "name": "service_name",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Начальная дата для подсчета суммы",
+                        "name": "start_date",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Конечная дата для подсчета суммы",
+                        "name": "end_date",
+                        "in": "query",
+                        "required": true
                     }
                 ],
                 "responses": {}
@@ -223,23 +228,6 @@ const docTemplate = `{
                 "user_id": {
                     "type": "string",
                     "example": "550e8400-e29b-41d4-a716-446655440000"
-                }
-            }
-        },
-        "dto.SubscriptionFilterRequest": {
-            "type": "object",
-            "required": [
-                "end_date",
-                "start_date"
-            ],
-            "properties": {
-                "end_date": {
-                    "type": "string",
-                    "example": "05-2026"
-                },
-                "start_date": {
-                    "type": "string",
-                    "example": "01-2026"
                 }
             }
         },

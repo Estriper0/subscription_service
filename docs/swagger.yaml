@@ -24,18 +24,6 @@ definitions:
     - start_date
     - user_id
     type: object
-  dto.SubscriptionFilterRequest:
-    properties:
-      end_date:
-        example: 05-2026
-        type: string
-      start_date:
-        example: 01-2026
-        type: string
-    required:
-    - end_date
-    - start_date
-    type: object
   dto.SubscriptionUpdateRequest:
     properties:
       end_date:
@@ -138,18 +126,12 @@ paths:
       tags:
       - subscription
   /subscription/price:
-    post:
+    get:
       consumes:
       - application/json
       description: Рассчитывает общую стоимость подписок по заданным фильтрам (пользователь,
         сервис, период)
       parameters:
-      - description: Период для фильтрации
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/dto.SubscriptionFilterRequest'
       - description: UUID пользователя для фильтрации
         format: uuid
         in: query
@@ -158,6 +140,16 @@ paths:
       - description: Название сервиса для фильтрации
         in: query
         name: service_name
+        type: string
+      - description: Начальная дата для подсчета суммы
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: Конечная дата для подсчета суммы
+        in: query
+        name: end_date
+        required: true
         type: string
       produces:
       - application/json

@@ -30,9 +30,3 @@ type SubscriptionUpdateRequest struct {
 	StartDate   *string `json:"start_date" validate:"omitempty,date" example:"01-2026"`
 	EndDate     *string `json:"end_date" validate:"omitempty,date" example:"05-2026"`
 }
-
-// SubscriptionFilterRequest запрос для фильтрации подписок
-type SubscriptionFilterRequest struct {
-	StartDate string `json:"start_date" validate:"required,date" example:"01-2026"`
-	EndDate   string `json:"end_date" validate:"required,date" example:"05-2026"`
-}
