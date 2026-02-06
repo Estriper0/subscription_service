@@ -41,6 +41,18 @@ definitions:
         example: 01-2026
         type: string
     type: object
+  handlers.Error:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      err:
+        $ref: '#/definitions/handlers.Error'
+    type: object
 host: localhost:8080
 info:
   contact: {}
@@ -62,7 +74,15 @@ paths:
           $ref: '#/definitions/dto.SubscriptionCreateRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Создать новую подписку
       tags:
       - subscription
@@ -86,7 +106,15 @@ paths:
         type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получить все подписки
       tags:
       - subscription
@@ -105,7 +133,19 @@ paths:
         type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Удалить подписку по ID
       tags:
       - subscription
@@ -122,7 +162,19 @@ paths:
         type: integer
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получить подписку по ID
       tags:
       - subscription
@@ -145,7 +197,19 @@ paths:
           $ref: '#/definitions/dto.SubscriptionUpdateRequest'
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Обновить подписку
       tags:
       - subscription
@@ -177,7 +241,15 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверные входные данные
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получить сумму подписок по фильтрам
       tags:
       - subscription
@@ -207,7 +279,15 @@ paths:
         type: string
       produces:
       - application/json
-      responses: {}
+      responses:
+        "400":
+          description: Неверный формат UUID или параметры запроса
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Получить подписки пользователя
       tags:
       - subscription

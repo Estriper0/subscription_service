@@ -51,6 +51,8 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 // @Accept json
 // @Produce json
 // @Param request body dto.SubscriptionCreateRequest true "Данные для создания подписки"
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription [post]
 func (h *SubscriptionHandler) Add(c *gin.Context) {
 	var req dto.SubscriptionCreateRequest
@@ -100,6 +102,8 @@ func (h *SubscriptionHandler) Add(c *gin.Context) {
 // @Param page query integer true "Номер страницы" minimum(0)
 // @Param limit query integer true "Количество записей на странице" minimum(0)
 // @Param user_id path string true "UUID пользователя" format(uuid)
+// @Failure 400 {object} handlers.ErrorResponse "Неверный формат UUID или параметры запроса"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/user/{user_id} [get]
 func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
 	page, ok := c.GetQuery("page")
@@ -169,6 +173,9 @@ func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path integer true "ID подписки" minimum(0)
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 404 {object} handlers.ErrorResponse "Подписка не найдена"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/{id} [get]
 func (h *SubscriptionHandler) GetById(c *gin.Context) {
 	id := c.Param("id")
@@ -212,6 +219,9 @@ func (h *SubscriptionHandler) GetById(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param id path integer true "ID подписки для удаления" minimum(0)
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 404 {object} handlers.ErrorResponse "Подписка не найдена"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/{id} [delete]
 func (h *SubscriptionHandler) DeleteById(c *gin.Context) {
 	id := c.Param("id")
@@ -256,6 +266,9 @@ func (h *SubscriptionHandler) DeleteById(c *gin.Context) {
 // @Produce json
 // @Param id path integer true "ID подписки для обновления" minimum(0)
 // @Param request body dto.SubscriptionUpdateRequest true "Данные для обновления подписки"
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 404 {object} handlers.ErrorResponse "Подписка не найдена"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/{id} [patch]
 func (h *SubscriptionHandler) Update(c *gin.Context) {
 	id := c.Param("id")
@@ -322,6 +335,8 @@ func (h *SubscriptionHandler) Update(c *gin.Context) {
 // @Param service_name query string false "Название сервиса для фильтрации"
 // @Param start_date query string true "Начальная дата для подсчета суммы"
 // @Param end_date query string true "Конечная дата для подсчета суммы"
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/price [get]
 func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
 	startDate, ok := c.GetQuery("start_date")
@@ -379,6 +394,8 @@ func (h *SubscriptionHandler) GetPriceByFilter(c *gin.Context) {
 // @Produce json
 // @Param page query integer true "Номер страницы" minimum(0)
 // @Param limit query integer true "Количество записей на странице" minimum(0)
+// @Failure 400 {object} handlers.ErrorResponse "Неверные входные данные"
+// @Failure 500 {object} handlers.ErrorResponse "Внутренняя ошибка сервера"
 // @Router /subscription/ [get]
 func (h *SubscriptionHandler) GetAll(c *gin.Context) {
 	page, ok := c.GetQuery("page")
