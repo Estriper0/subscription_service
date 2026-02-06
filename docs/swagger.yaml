@@ -157,16 +157,28 @@ paths:
       summary: Получить сумму подписок по фильтрам
       tags:
       - subscription
-  /subscription/user/{userId}:
+  /subscription/user/{user_id}:
     get:
       consumes:
       - application/json
       description: Возвращает список всех подписок пользователя по его ID
       parameters:
+      - description: Номер страницы
+        in: query
+        minimum: 0
+        name: page
+        required: true
+        type: integer
+      - description: Количество записей на странице
+        in: query
+        minimum: 0
+        name: limit
+        required: true
+        type: integer
       - description: UUID пользователя
         format: uuid
         in: path
-        name: userId
+        name: user_id
         required: true
         type: string
       produces:

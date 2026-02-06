@@ -87,7 +87,7 @@ const docTemplate = `{
                 "responses": {}
             }
         },
-        "/subscription/user/{userId}": {
+        "/subscription/user/{user_id}": {
             "get": {
                 "description": "Возвращает список всех подписок пользователя по его ID",
                 "consumes": [
@@ -102,10 +102,26 @@ const docTemplate = `{
                 "summary": "Получить подписки пользователя",
                 "parameters": [
                     {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "Номер страницы",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "Количество записей на странице",
+                        "name": "limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
                         "type": "string",
                         "format": "uuid",
                         "description": "UUID пользователя",
-                        "name": "userId",
+                        "name": "user_id",
                         "in": "path",
                         "required": true
                     }

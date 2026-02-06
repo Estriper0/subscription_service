@@ -63,13 +63,15 @@ func (r *SubscriptionRepo) GetById(ctx context.Context, id int) (*models.Subscri
 	return &subscription, nil
 }
 
-func (r *SubscriptionRepo) GetByUser(ctx context.Context, userId uuid.UUID) ([]*models.Subscription, error) {
+func (r *SubscriptionRepo) GetByUser(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*models.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date 
 			FROM subscription 
 		WHERE user_id = $1
+			OFFSET $2
+			LIMIT $3
 	`
-	rows, err := r.db.Query(ctx, query, userId)
+	rows, err := r.db.Query(ctx, query, userId, offset, limit)
 	if err != nil {
 		return nil, fmt.Errorf("db:SubscriptionRepo.GetByUser:Query - %s", err.Error())
 	}

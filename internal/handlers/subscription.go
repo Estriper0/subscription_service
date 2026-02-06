@@ -21,7 +21,7 @@ type SubscriptionHandler struct {
 
 type ISubscriptionService interface {
 	Create(ctx context.Context, subscription *domain.SubscriptionCreate) (int, error)
-	GetByUser(ctx context.Context, userId uuid.UUID) ([]*domain.Subscription, error)
+	GetByUser(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*domain.Subscription, error)
 	GetById(ctx context.Context, id int) (*domain.Subscription, error)
 	DeleteById(ctx context.Context, id int) (*domain.Subscription, error)
 	Update(ctx context.Context, data *domain.SubscriptionUpdate) (*domain.Subscription, error)
@@ -39,7 +39,7 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 	g.DELETE("/:id", r.DeleteById)
 	g.PATCH("/:id", r.Update)
 	g.GET("/price", r.GetPriceByFilter)
-	g.GET("/user/:userId", r.GetByUser)
+	g.GET("/user/:user_id", r.GetByUser)
 }
 
 // Add godoc
@@ -95,17 +95,43 @@ func (h *SubscriptionHandler) Add(c *gin.Context) {
 // @Tags subscription
 // @Accept json
 // @Produce json
-// @Param userId path string true "UUID пользователя" format(uuid)
-// @Router /subscription/user/{userId} [get]
+// @Param page query integer true "Номер страницы" minimum(0)
+// @Param limit query integer true "Количество записей на странице" minimum(0)
+// @Param user_id path string true "UUID пользователя" format(uuid)
+// @Router /subscription/user/{user_id} [get]
 func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
-	userId := c.Param("userId")
+	page, ok := c.GetQuery("page")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no page"))
+		return
+	}
+	pageInt, err := strconv.Atoi(page)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("page is not a integer"))
+		return
+	}
+
+	limit, ok := c.GetQuery("limit")
+	if !ok {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("no limit"))
+		return
+	}
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("limit is not a integer"))
+		return
+	}
+
+	offset := (pageInt - 1) * limitInt
+
+	userId := c.Param("user_id")
 	parseUUID, err := uuid.Parse(userId)
 	if err != nil {
 		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("incorrect uuid"))
 		return
 	}
 
-	subscriptions, err := h.subscriptionService.GetByUser(c.Request.Context(), parseUUID)
+	subscriptions, err := h.subscriptionService.GetByUser(c.Request.Context(), parseUUID, offset, limitInt)
 	if err != nil {
 		respondWithError(c, http.StatusInternalServerError, ErrStatusInternal, err)
 		return
@@ -127,6 +153,8 @@ func (h *SubscriptionHandler) GetByUser(c *gin.Context) {
 	c.JSON(
 		http.StatusOK,
 		gin.H{
+			"page":          page,
+			"limit":         limit,
 			"subscriptions": res,
 		},
 	)

@@ -17,7 +17,7 @@ import (
 type ISubscriptionRepo interface {
 	Create(ctx context.Context, s *models.SubscriptionCreate) (int, error)
 	GetById(ctx context.Context, id int) (*models.Subscription, error)
-	GetByUser(ctx context.Context, userId uuid.UUID) ([]*models.Subscription, error)
+	GetByUser(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*models.Subscription, error)
 	DeleteById(ctx context.Context, id int) (*models.Subscription, error)
 	Update(ctx context.Context, s *models.SubscriptionUpdate) (*models.Subscription, error)
 	GetPriceByFilter(ctx context.Context, user_id *uuid.UUID, service_name *string, start_date, end_date time.Time) (int, error)
@@ -61,8 +61,8 @@ func (s *SubscriptionService) Create(ctx context.Context, subscription *domain.S
 	return id, err
 }
 
-func (s *SubscriptionService) GetByUser(ctx context.Context, userId uuid.UUID) ([]*domain.Subscription, error) {
-	models, err := s.subscriptionRepo.GetByUser(ctx, userId)
+func (s *SubscriptionService) GetByUser(ctx context.Context, userId uuid.UUID, offset, limit int) ([]*domain.Subscription, error) {
+	models, err := s.subscriptionRepo.GetByUser(ctx, userId, offset, limit)
 	if err != nil {
 		s.logger.Error("SubscriptionService.GetByUser:subscriptionRepo.GetByUser - Internal error", slog.String("error", err.Error()))
 		return nil, ErrInternal
