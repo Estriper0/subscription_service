@@ -37,7 +37,7 @@ func NewSubscriptionHandler(g *gin.RouterGroup, subscriptionService ISubscriptio
 	g.POST("/", r.Add)
 	g.GET("/:id", r.GetById)
 	g.DELETE("/:id", r.DeleteById)
-	g.PATCH("/", r.Update)
+	g.PATCH("/:id", r.Update)
 	g.POST("/price", r.GetPriceByFilter)
 	g.GET("/user/:userId", r.GetByUser)
 }
@@ -224,11 +224,18 @@ func (h *SubscriptionHandler) DeleteById(c *gin.Context) {
 // @Tags subscription
 // @Accept json
 // @Produce json
+// @Param id path integer true "ID подписки для обновления" minimum(0)
 // @Param request body dto.SubscriptionUpdateRequest true "Данные для обновления подписки"
-// @Router /subscription [patch]
+// @Router /subscription/{id} [patch]
 func (h *SubscriptionHandler) Update(c *gin.Context) {
-	var req dto.SubscriptionUpdateRequest
+	id := c.Param("id")
+	idInt, err := strconv.Atoi(id)
+	if err != nil || idInt < 0 {
+		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, errors.New("id must be a non-negative integer"))
+		return
+	}
 
+	var req dto.SubscriptionUpdateRequest
 	if err := c.Bind(&req); err != nil {
 		respondWithError(c, http.StatusBadRequest, ErrStatusBadRequest, err)
 		return
@@ -240,7 +247,7 @@ func (h *SubscriptionHandler) Update(c *gin.Context) {
 	}
 
 	subscription, err := h.subscriptionService.Update(c.Request.Context(), &domain.SubscriptionUpdate{
-		Id:          req.Id,
+		Id:          idInt,
 		ServiceName: req.ServiceName,
 		Price:       req.Price,
 		StartDate:   req.StartDate,

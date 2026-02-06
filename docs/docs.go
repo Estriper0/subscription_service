@@ -40,31 +40,6 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {}
-            },
-            "patch": {
-                "description": "Обновляет информацию о существующей подписке",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "subscription"
-                ],
-                "summary": "Обновить подписку",
-                "parameters": [
-                    {
-                        "description": "Данные для обновления подписки",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.SubscriptionUpdateRequest"
-                        }
-                    }
-                ],
-                "responses": {}
             }
         },
         "/subscription/price": {
@@ -181,6 +156,39 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {}
+            },
+            "patch": {
+                "description": "Обновляет информацию о существующей подписке",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subscription"
+                ],
+                "summary": "Обновить подписку",
+                "parameters": [
+                    {
+                        "minimum": 0,
+                        "type": "integer",
+                        "description": "ID подписки для обновления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Данные для обновления подписки",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SubscriptionUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {}
             }
         }
     },
@@ -194,27 +202,27 @@ const docTemplate = `{
                 "user_id"
             ],
             "properties": {
-                "service_name": {
+                "end_date": {
                     "type": "string",
-                    "maxLength": 100,
-                    "example": "Netflix"
+                    "example": "05-2026"
                 },
                 "price": {
                     "type": "integer",
                     "minimum": 0,
                     "example": 599
                 },
-                "user_id": {
+                "service_name": {
                     "type": "string",
-                    "example": "550e8400-e29b-41d4-a716-446655440000"
+                    "maxLength": 100,
+                    "example": "Netflix"
                 },
                 "start_date": {
                     "type": "string",
                     "example": "01-2026"
                 },
-                "end_date": {
+                "user_id": {
                     "type": "string",
-                    "example": "05-2026"
+                    "example": "550e8400-e29b-41d4-a716-446655440000"
                 }
             }
         },
@@ -225,44 +233,36 @@ const docTemplate = `{
                 "start_date"
             ],
             "properties": {
-                "start_date": {
-                    "type": "string",
-                    "example": "01-2026"
-                },
                 "end_date": {
                     "type": "string",
                     "example": "05-2026"
+                },
+                "start_date": {
+                    "type": "string",
+                    "example": "01-2026"
                 }
             }
         },
         "dto.SubscriptionUpdateRequest": {
             "type": "object",
-            "required": [
-                "id"
-            ],
             "properties": {
-                "id": {
-                    "type": "integer",
-                    "minimum": 0,
-                    "example": 1
-                },
-                "service_name": {
+                "end_date": {
                     "type": "string",
-                    "maxLength": 100,
-                    "example": "Netflix Premium"
+                    "example": "05-2026"
                 },
                 "price": {
                     "type": "integer",
                     "minimum": 0,
                     "example": 699
                 },
+                "service_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "example": "Netflix Premium"
+                },
                 "start_date": {
                     "type": "string",
                     "example": "01-2026"
-                },
-                "end_date": {
-                    "type": "string",
-                    "example": "05-2026"
                 }
             }
         }

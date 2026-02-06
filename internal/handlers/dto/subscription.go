@@ -25,7 +25,6 @@ type SubscriptionCreateRequest struct {
 
 // SubscriptionUpdateRequest запрос на обновление подписки
 type SubscriptionUpdateRequest struct {
-	Id          int     `json:"id" validate:"required,gte=0" example:"1"`
 	ServiceName *string `json:"service_name" validate:"omitempty,lte=100" example:"Netflix Premium"`
 	Price       *int    `json:"price" validate:"omitempty,gte=0" example:"699"`
 	StartDate   *string `json:"start_date" validate:"omitempty,date" example:"01-2026"`
