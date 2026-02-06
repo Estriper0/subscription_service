@@ -164,32 +164,51 @@ func (r *SubscriptionRepo) Update(ctx context.Context, s *models.SubscriptionUpd
 
 func (r *SubscriptionRepo) GetPriceByFilter(ctx context.Context, user_id *uuid.UUID, service_name *string, start_date, end_date time.Time) (int, error) {
 	query := `
-        SELECT COALESCE(SUM(price), 0) 
+        SELECT price,
+			CASE
+				WHEN GREATEST(start_date, $2) > LEAST(end_date, $1)
+					THEN 0
+				ELSE
+					(EXTRACT(YEAR FROM age(
+						LEAST(end_date, $1),
+						GREATEST(start_date, $2)
+					))::int * 12 +
+					EXTRACT(MONTH FROM age(
+						LEAST(end_date, $1),
+						GREATEST(start_date, $2)
+					))::int)
+			END AS count_months
         	FROM subscription
-        WHERE start_date <= $1 
-			AND 
-			(
-				end_date IS NULL OR
-				end_date >= $2
-			) 
     `
 	c := 3
 	args := []interface{}{end_date, start_date}
 	if user_id != nil {
-		query += fmt.Sprintf(" AND user_id = $%d", c)
+		query += fmt.Sprintf("WHERE user_id = $%d", c)
 		c++
 		args = append(args, *user_id)
 	}
 	if service_name != nil {
-		query += fmt.Sprintf(" AND service_name = $%d", c)
+		if c == 3 {
+			query += fmt.Sprintf("WHERE service_name = $%d", c)
+		} else {
+			query += fmt.Sprintf(" AND service_name = $%d", c)
+		}
 		args = append(args, *service_name)
 	}
 
 	var total int
-	err := r.db.QueryRow(ctx, query, args...).Scan(&total)
-
+	rows, err := r.db.Query(ctx, query, args...)
 	if err != nil {
-		return 0, fmt.Errorf("db:SubscriptionRepo.GetPriceByTime:QueryRow - %s", err.Error())
+		return 0, fmt.Errorf("db:SubscriptionRepo.GetPriceByTime:Query - %s", err.Error())
+	}
+
+	for rows.Next() {
+		var price, countMonths int
+		err := rows.Scan(&price, &countMonths)
+		if err != nil {
+			return 0, fmt.Errorf("db:SubscriptionRepo.GetPriceByTime:Scan - %s", err.Error())
+		}
+		total += price * countMonths
 	}
 
 	return total, nil
